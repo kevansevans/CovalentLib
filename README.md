@@ -1,1 +1,1 @@
-CovalentLib
+A sort of reverse engineered tool to read the data from pokemon Crystal and do something with it. What that is, I don't know yet, but it's fun to learn.
