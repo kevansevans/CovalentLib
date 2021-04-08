@@ -1,4 +1,4 @@
-package enums.maps;
+package covalent.enums.maps;
 
 /**
  * @author Kaelan

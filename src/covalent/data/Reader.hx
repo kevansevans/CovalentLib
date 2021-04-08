@@ -1,6 +1,10 @@
-package data;
+package covalent.data;
 
-import sys.io.File;
+import covalent.typedefs.MapHeaderPrimary;
+import covalent.typedefs.MapHeaderSecondary;
+import covalent.enums.maps.MapGroup;
+import covalent.enums.maps.MapIndex;
+import covalent.component.MapBase;
 
 /**
  * ...
@@ -31,31 +35,59 @@ class Reader
 		return out;
 	}
 	
-	public static function readBankData(_bankOffset:Int) {
+	public static function getMap(_group:MapGroup, _index:MapIndex):MapBase {
 		
-		var list:String = '';
+		var mapHeaderA:MapHeaderPrimary;
+		var mapHeaderB:MapHeaderSecondary;
+		var blocks:Array<Int>;
 		
 		var data = Main.romData;
 		
-		for (byte in _bankOffset...(_bankOffset + bankRange + 1)) {
-			
-			var item:String = '${data[byte]} : ${StringTools.hex(data[byte])}\n';
-			
-			list += item;
-			
+		var mapPointer = (_index * 9) + (((data[(0x25 * 0x4000) + (_group * 2) + 1]) << 8 | (data[(0x25 * 0x4000) + (_group * 2)])) & 0x3FFF) + (0x25 * 0x4000);
+		
+		mapHeaderA = {
+			secondaryBank : data[mapPointer],
+			tileID : data[mapPointer + 1],
+			permission : data[mapPointer + 2],
+			secondary : data[mapPointer + 4] << 8 | data[mapPointer + 3],
+			location : data[mapPointer + 5],
+			music : data[mapPointer + 6],
+			phonepalette : data[mapPointer + 7],
+			fishing : data[mapPointer + 8],
 		}
 		
-		var text = File.write("./bankDump.txt");
-		text.writeString(list);
-		text.close();
+		var offset = (mapHeaderA.secondaryBank * 0x4000) + (mapHeaderA.secondary & 0x3FFF);
 		
-	}
-	
-	public static function readMapData(_mapStart:Int, _mapEnd:Int) {
+		mapHeaderB = {
+			fillID : data[offset],
+			height : data[offset + 1],
+			width : data[offset + 2],
+			blockDataBank : data[offset + 3],
+			blockDataPointer : data[offset + 5] << 8 | data[offset + 4],
+			scriptsEventsBanks : data[offset + 6],
+			scriptsPointer : data[offset + 8] << 8 | data[offset + 7],
+			eventsPointer : data[offset + 10] << 8 | data[offset + 9],
+			directionEnabled : data[offset + 11]
+		}
 		
-		var data = Main.romData;
+		blocks = new Array();
 		
-		return data.slice(_mapStart, _mapEnd);
+		var blockLocation:Int = (mapHeaderB.blockDataBank * 0x4000) + (mapHeaderB.blockDataPointer & 0x3FFF);
+		
+		for (item in 0...(mapHeaderB.width * mapHeaderB.height)) {
+			blocks.push(data[blockLocation + item]);
+		}
+		
+		var mapdata:MapProperties = {
+			locationID : mapHeaderA.location,
+			//blocks : blocks,
+			width : mapHeaderB.width,
+			height : mapHeaderB.height,
+			fillerID : mapHeaderB.fillID,
+			musicID : mapHeaderA.music
+		}
+		
+		return new MapBase(mapdata);
 	}
 	
 }
