@@ -80,7 +80,7 @@ class Reader
 		
 		var mapdata:MapProperties = {
 			locationID : mapHeaderA.location,
-			//blocks : blocks,
+			blocks : blocks,
 			width : mapHeaderB.width,
 			height : mapHeaderB.height,
 			fillerID : mapHeaderB.fillID,

@@ -1,4 +1,4 @@
-package typedefs;
+package covalent.typedefs;
 
 /**
  * @author Kaelan

@@ -15,7 +15,7 @@ class MapBase
 }
 typedef MapProperties = {
 	var locationID:Int;
-	//var blocks:Array<Int>;
+	var blocks:Array<Int>;
 	var width:Int;
 	var height:Int;
 	var fillerID:Int;
